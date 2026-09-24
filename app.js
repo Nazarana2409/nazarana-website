@@ -15,7 +15,7 @@ const silverProducts=[
 {name:'Regal Heritage Frame',price:1999,img:'assets/silver/image8.webp',desc:'Statement heritage photo frame',group:'frames'},
 {name:'Azure Peacock Bowl',price:2599,img:'assets/silver/image9.webp',desc:'Azure peacock-inspired serving bowl',group:'bowls'},
 {name:'Mayura Serving Bowl',price:2499,img:'assets/silver/image10.webp',desc:'Peacock-inspired silver serving bowl',group:'bowls'},
-{name:'Sage Peacock Serving Set',price:10499,img:'assets/silver/image11.webp',desc:'Sage and silver festive serving ensemble',group:'serveware'},
+{name:'Sage Peacock Pooja Thali',price:10499,img:'assets/silver/image11.webp',desc:'Sage and silver festive serving ensemble',group:'serveware'},
 {name:'Ivory Blossom Tissue Box',price:4499,img:'assets/silver/image12.webp',desc:'Ivory floral silver-coated tissue box',group:'tissue'},
 {name:'Sage Blossom Tissue Box',price:4699,img:'assets/silver/image13.webp',desc:'Sage floral silver-coated tissue box',group:'tissue'},
 {name:'Azure Blossom Tissue Box',price:4699,img:'assets/silver/image14.webp',desc:'Azure floral silver-coated tissue box',group:'tissue'},
