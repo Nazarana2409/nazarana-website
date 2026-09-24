@@ -2,7 +2,7 @@ const products=[
 {name:'The Noor Edit',price:4799,img:'assets/Nazarana Diwali Gift Hamper.webp',desc:'Festive curation · Signature presentation'},
 {name:'The Mehr Edit',price:4799,img:'assets/Golden Nazarana Diwali Gift Hamper.webp',desc:'A golden festive celebration'},
 {name:'The Utsav Edit',price:2499,img:'assets/Elegant Nazarana Diwali Gift Set.webp',desc:'Elegant gifting · Thoughtfully composed'},
-{name:'The Riwaayat Edit',price:3699,img:'assets/Luxury Nazarana Diwali Gift Hamper.webp',desc:'Our elevated Diwali signature'}];
+{name:'The Riwaayat Edit',price:3499,img:'assets/Luxury Nazarana Diwali Gift Hamper.webp',desc:'Our elevated Diwali signature'}];
 
 const silverProducts=[
 {name:'Shree Ganesha Poojan Thali',price:7499,img:'assets/silver/image3.webp',desc:'Ceremonial silver-coated poojan thali',group:'ritual'},
