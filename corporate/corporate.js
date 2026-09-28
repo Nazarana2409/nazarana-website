@@ -1328,8 +1328,8 @@ function openSelectionModal(option) {
   }
 
   const hamperImage =
-    option.hamper?.image_url ||
-    placeholderImage("lifestyle");
+  option.lifestyle_image_url ||
+  placeholderImage("lifestyle");
 
   preview.innerHTML = `
     <img
