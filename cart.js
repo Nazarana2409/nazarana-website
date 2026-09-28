@@ -90,9 +90,10 @@ checkoutForm.onsubmit = async (e) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action: "create_order",
-          amount_inr: total,
-        }),
+  action: "create_order",
+  cart,
+  customer,
+}),
       }
     );
 
@@ -180,7 +181,7 @@ checkoutForm.onsubmit = async (e) => {
           location.href =
             "success.html?order=" +
             encodeURIComponent(
-              verification.order_id
+              verification.order_number
             );
         } catch (error) {
           console.error(error);
