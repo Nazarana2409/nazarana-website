@@ -1210,22 +1210,6 @@ function renderGiftOptions(options) {
             "lifestyle"
           );
 
-        const hamperImage =
-          option.hamper?.image_url ||
-          placeholderImage(
-            "hamper"
-          );
-
-        const productDetails =
-          formatProductDetails(
-            option.hamper?.product_details
-          );
-
-        const description =
-          option.hamper?.description ||
-          option.employee_copy ||
-          "A thoughtful Nazarana curated especially for you.";
-
         return `
           <article
             class="gift-edit-card"
@@ -1266,41 +1250,7 @@ function renderGiftOptions(options) {
                 )}
               </p>
 
-              <div class="hamper-preview">
-
-                <img
-                  src="${escapeHtml(
-                    hamperImage
-                  )}"
-                  alt="${escapeHtml(
-                    option.name
-                  )} hamper"
-                >
-
-                <span class="hamper-label">
-                  Inside your Nazarana
-                </span>
-
-                <p class="hamper-description">
-                  ${escapeHtml(
-                    description
-                  )}
-                </p>
-
-                ${
-                  productDetails
-                    ? `
-                      <p class="hamper-description">
-                        ${escapeHtml(
-                          productDetails
-                        )}
-                      </p>
-                    `
-                    : ""
-                }
-
-              </div>
-
+         
               <button
                 type="button"
                 class="choose-edit-button"
@@ -1590,22 +1540,6 @@ async function initialiseEmployeePortal() {
           : "Welcome.";
     }
 
-    if (tier) {
-      const tierName =
-        result.tier?.name || "";
-
-      const tierPrice =
-        formatINR(
-          result.tier?.price_inr
-        );
-
-      tier.textContent =
-        tierName && tierPrice
-          ? `${tierName} · ${tierPrice}`
-          : tierName ||
-            tierPrice ||
-            "Your Nazarana";
-    }
 
     if (deadline) {
       deadline.textContent =
