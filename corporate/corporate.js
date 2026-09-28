@@ -832,3 +832,1021 @@ document.addEventListener(
     initialiseEmployeeLogin();
   }
 );
+/* =========================================================
+   EMPLOYEE GIFT PORTAL
+   ========================================================= */
+
+let portalData = null;
+let pendingGift = null;
+
+
+/* ---------------------------------------------------------
+   SAFE TEXT
+   --------------------------------------------------------- */
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+/* ---------------------------------------------------------
+   MONEY
+   --------------------------------------------------------- */
+
+function formatINR(value) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return "";
+  }
+
+  return new Intl.NumberFormat(
+    "en-IN",
+    {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0
+    }
+  ).format(number);
+}
+
+
+/* ---------------------------------------------------------
+   DATE
+   --------------------------------------------------------- */
+
+function formatPortalDate(value) {
+  if (!value) {
+    return "As shared by HR";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "As shared by HR";
+  }
+
+  return new Intl.DateTimeFormat(
+    "en-IN",
+    {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }
+  ).format(date);
+}
+
+
+/* ---------------------------------------------------------
+   PLACEHOLDER IMAGE
+
+   Temporary visual until Nazarana's final lifestyle and
+   hamper photography is uploaded to Supabase.
+   --------------------------------------------------------- */
+
+function placeholderImage(type = "lifestyle") {
+  if (type === "hamper") {
+    return (
+      "data:image/svg+xml;charset=UTF-8," +
+      encodeURIComponent(`
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="900"
+          height="650"
+          viewBox="0 0 900 650"
+        >
+          <rect
+            width="900"
+            height="650"
+            fill="#f5eee4"
+          />
+
+          <circle
+            cx="450"
+            cy="270"
+            r="105"
+            fill="none"
+            stroke="#c5a46d"
+            stroke-width="2"
+          />
+
+          <text
+            x="450"
+            y="285"
+            text-anchor="middle"
+            fill="#6f263d"
+            font-family="Georgia, serif"
+            font-size="72"
+          >
+            N
+          </text>
+
+          <text
+            x="450"
+            y="430"
+            text-anchor="middle"
+            fill="#8a7569"
+            font-family="Arial, sans-serif"
+            font-size="20"
+            letter-spacing="5"
+          >
+            YOUR NAZARANA
+          </text>
+        </svg>
+      `)
+    );
+  }
+
+  return (
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(`
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="1000"
+        height="800"
+        viewBox="0 0 1000 800"
+      >
+        <defs>
+          <linearGradient
+            id="bg"
+            x1="0"
+            y1="0"
+            x2="1"
+            y2="1"
+          >
+            <stop
+              offset="0%"
+              stop-color="#efe3d3"
+            />
+
+            <stop
+              offset="100%"
+              stop-color="#dcc5aa"
+            />
+          </linearGradient>
+        </defs>
+
+        <rect
+          width="1000"
+          height="800"
+          fill="url(#bg)"
+        />
+
+        <circle
+          cx="500"
+          cy="330"
+          r="125"
+          fill="none"
+          stroke="#a9834f"
+          stroke-width="2"
+        />
+
+        <text
+          x="500"
+          y="355"
+          text-anchor="middle"
+          fill="#6f263d"
+          font-family="Georgia, serif"
+          font-size="100"
+        >
+          N
+        </text>
+
+        <text
+          x="500"
+          y="540"
+          text-anchor="middle"
+          fill="#6f263d"
+          font-family="Georgia, serif"
+          font-size="35"
+          letter-spacing="4"
+        >
+          NAZARANA
+        </text>
+
+        <text
+          x="500"
+          y="585"
+          text-anchor="middle"
+          fill="#816c60"
+          font-family="Arial, sans-serif"
+          font-size="16"
+          letter-spacing="3"
+        >
+          AN OFFERING WITH LOVE AND RESPECT
+        </text>
+      </svg>
+    `)
+  );
+}
+
+
+/* ---------------------------------------------------------
+   PRODUCT DETAILS
+   --------------------------------------------------------- */
+
+function formatProductDetails(details) {
+  if (!details) {
+    return "";
+  }
+
+  if (Array.isArray(details)) {
+    return details
+      .map((item) => {
+        if (
+          typeof item === "string"
+        ) {
+          return item;
+        }
+
+        if (
+          item &&
+          typeof item === "object"
+        ) {
+          return (
+            item.name ||
+            item.title ||
+            item.product ||
+            item.description ||
+            ""
+          );
+        }
+
+        return "";
+      })
+      .filter(Boolean)
+      .join(" • ");
+  }
+
+  if (typeof details === "string") {
+    return details;
+  }
+
+  return "";
+}
+
+
+/* ---------------------------------------------------------
+   PORTAL ERROR
+   --------------------------------------------------------- */
+
+function showPortalError(message) {
+  const loading =
+    document.getElementById(
+      "portalLoading"
+    );
+
+  const portal =
+    document.getElementById(
+      "employeePortal"
+    );
+
+  const error =
+    document.getElementById(
+      "portalError"
+    );
+
+  const errorMessage =
+    document.getElementById(
+      "portalErrorMessage"
+    );
+
+  hideElement(loading);
+  hideElement(portal);
+  showElement(error);
+
+  if (errorMessage) {
+    errorMessage.textContent =
+      message ||
+      "Please login again using the invitation shared by your organisation.";
+  }
+
+  const loginLink =
+    document.getElementById(
+      "backToEmployeeLogin"
+    );
+
+  const campaign =
+    getCampaignSlug();
+
+  if (
+    loginLink &&
+    campaign
+  ) {
+    loginLink.href =
+      `employee-login.html?campaign=${encodeURIComponent(
+        campaign
+      )}`;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   RENDER GIFT CARDS
+   --------------------------------------------------------- */
+
+function renderGiftOptions(options) {
+  const grid =
+    document.getElementById(
+      "giftEditsGrid"
+    );
+
+  if (!grid) {
+    return;
+  }
+
+  if (
+    !Array.isArray(options) ||
+    options.length === 0
+  ) {
+    grid.innerHTML = `
+      <div
+        style="
+          grid-column: 1 / -1;
+          text-align: center;
+          padding: 60px 20px;
+        "
+      >
+        <span class="eyebrow">
+          COMING SOON
+        </span>
+
+        <h3
+          style="
+            font-family: Georgia, serif;
+            font-size: 32px;
+            font-weight: 400;
+            color: #6f263d;
+          "
+        >
+          Your Nazarana is being curated.
+        </h3>
+
+        <p
+          style="
+            color: #756e68;
+            line-height: 1.7;
+          "
+        >
+          Please check again shortly.
+        </p>
+      </div>
+    `;
+
+    return;
+  }
+
+  grid.innerHTML =
+    options
+      .map((option, index) => {
+        const lifestyleImage =
+          option.lifestyle_image_url ||
+          placeholderImage(
+            "lifestyle"
+          );
+
+        const hamperImage =
+          option.hamper?.image_url ||
+          placeholderImage(
+            "hamper"
+          );
+
+        const productDetails =
+          formatProductDetails(
+            option.hamper?.product_details
+          );
+
+        const description =
+          option.hamper?.description ||
+          option.employee_copy ||
+          "A thoughtful Nazarana curated especially for you.";
+
+        return `
+          <article
+            class="gift-edit-card"
+            data-gift-edit-id="${escapeHtml(
+              option.gift_edit_id
+            )}"
+          >
+
+            <img
+              class="gift-edit-lifestyle"
+              src="${escapeHtml(
+                lifestyleImage
+              )}"
+              alt="${escapeHtml(
+                option.name
+              )}"
+            >
+
+            <div class="gift-edit-body">
+
+              <span class="gift-edit-number">
+                Edit ${String(
+                  index + 1
+                ).padStart(2, "0")}
+              </span>
+
+              <h3>
+                ${escapeHtml(
+                  option.name
+                )}
+              </h3>
+
+              <p class="gift-edit-tagline">
+                ${escapeHtml(
+                  option.tagline ||
+                  option.employee_copy ||
+                  ""
+                )}
+              </p>
+
+              <div class="hamper-preview">
+
+                <img
+                  src="${escapeHtml(
+                    hamperImage
+                  )}"
+                  alt="${escapeHtml(
+                    option.name
+                  )} hamper"
+                >
+
+                <span class="hamper-label">
+                  Inside your Nazarana
+                </span>
+
+                <p class="hamper-description">
+                  ${escapeHtml(
+                    description
+                  )}
+                </p>
+
+                ${
+                  productDetails
+                    ? `
+                      <p class="hamper-description">
+                        ${escapeHtml(
+                          productDetails
+                        )}
+                      </p>
+                    `
+                    : ""
+                }
+
+              </div>
+
+              <button
+                type="button"
+                class="choose-edit-button"
+                data-gift-edit-id="${escapeHtml(
+                  option.gift_edit_id
+                )}"
+              >
+                Choose this Edit
+              </button>
+
+            </div>
+
+          </article>
+        `;
+      })
+      .join("");
+
+  grid
+    .querySelectorAll(
+      ".choose-edit-button"
+    )
+    .forEach((button) => {
+      button.addEventListener(
+        "click",
+        () => {
+          const id =
+            button.dataset.giftEditId;
+
+          const option =
+            options.find(
+              (item) =>
+                item.gift_edit_id === id
+            );
+
+          if (option) {
+            openSelectionModal(
+              option
+            );
+          }
+        }
+      );
+    });
+}
+
+
+/* ---------------------------------------------------------
+   MODAL
+   --------------------------------------------------------- */
+
+function openSelectionModal(option) {
+  pendingGift = option;
+
+  const modal =
+    document.getElementById(
+      "selectionModal"
+    );
+
+  const preview =
+    document.getElementById(
+      "modalGiftPreview"
+    );
+
+  const message =
+    document.getElementById(
+      "selectionModalMessage"
+    );
+
+  if (!modal || !preview) {
+    return;
+  }
+
+  if (message) {
+    message.textContent = "";
+    hideElement(message);
+  }
+
+  const hamperImage =
+    option.hamper?.image_url ||
+    placeholderImage("hamper");
+
+  preview.innerHTML = `
+    <img
+      src="${escapeHtml(
+        hamperImage
+      )}"
+      alt="${escapeHtml(
+        option.name
+      )}"
+    >
+
+    <h3>
+      ${escapeHtml(
+        option.name
+      )}
+    </h3>
+
+    <p>
+      ${escapeHtml(
+        option.tagline || ""
+      )}
+    </p>
+  `;
+
+  showElement(modal);
+  document.body.style.overflow =
+    "hidden";
+}
+
+
+function closeSelectionModal() {
+  const modal =
+    document.getElementById(
+      "selectionModal"
+    );
+
+  hideElement(modal);
+
+  document.body.style.overflow =
+    "";
+
+  pendingGift = null;
+}
+
+
+/* ---------------------------------------------------------
+   LOCKED SELECTION
+   --------------------------------------------------------- */
+
+function renderLockedSelection(
+  selectedGift
+) {
+  const grid =
+    document.getElementById(
+      "giftEditsGrid"
+    );
+
+  const intro =
+    document.querySelector(
+      ".edits-intro"
+    );
+
+  const complete =
+    document.getElementById(
+      "selectionComplete"
+    );
+
+  const name =
+    document.getElementById(
+      "selectedEditName"
+    );
+
+  const summary =
+    document.getElementById(
+      "selectedEditSummary"
+    );
+
+  hideElement(grid);
+  hideElement(intro);
+  showElement(complete);
+
+  if (!selectedGift) {
+    if (name) {
+      name.textContent =
+        "Your Nazarana";
+    }
+
+    return;
+  }
+
+  if (name) {
+    name.textContent =
+      selectedGift.name ||
+      "Your Nazarana";
+  }
+
+  if (summary) {
+    const image =
+      selectedGift.hamper?.image_url ||
+      selectedGift.lifestyle_image_url ||
+      placeholderImage("hamper");
+
+    summary.innerHTML = `
+      <img
+        src="${escapeHtml(
+          image
+        )}"
+        alt="${escapeHtml(
+          selectedGift.name ||
+          "Your Nazarana"
+        )}"
+      >
+    `;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   LOAD PORTAL
+   --------------------------------------------------------- */
+
+async function initialiseEmployeePortal() {
+  const portal =
+    document.getElementById(
+      "employeePortal"
+    );
+
+  if (!portal) {
+    return;
+  }
+
+  const loading =
+    document.getElementById(
+      "portalLoading"
+    );
+
+  const error =
+    document.getElementById(
+      "portalError"
+    );
+
+  const campaignSlug =
+    getCampaignSlug();
+
+  const accessToken =
+    getAccessToken();
+
+  if (
+    !campaignSlug ||
+    !accessToken
+  ) {
+    showPortalError(
+      "Your session has expired. Please login again using the link shared by your organisation."
+    );
+
+    return;
+  }
+
+  hideElement(error);
+  showElement(loading);
+
+  try {
+    const result =
+      await callEmployeeGifts({
+        action: "get_portal",
+        campaign_slug:
+          campaignSlug
+      });
+
+    if (!result.success) {
+      if (
+        result.message
+          ?.toLowerCase()
+          .includes("session")
+      ) {
+        clearEmployeeSession();
+      }
+
+      showPortalError(
+        result.message ||
+        "We couldn't prepare your gifting invitation."
+      );
+
+      return;
+    }
+
+    portalData = result;
+
+    const greeting =
+      document.getElementById(
+        "portalGreeting"
+      );
+
+    const tier =
+      document.getElementById(
+        "portalTier"
+      );
+
+    const deadline =
+      document.getElementById(
+        "portalDeadline"
+      );
+
+    if (greeting) {
+      greeting.textContent =
+        result.employee?.first_name
+          ? `Welcome, ${result.employee.first_name}.`
+          : "Welcome.";
+    }
+
+    if (tier) {
+      const tierName =
+        result.tier?.name || "";
+
+      const tierPrice =
+        formatINR(
+          result.tier?.price_inr
+        );
+
+      tier.textContent =
+        tierName && tierPrice
+          ? `${tierName} · ${tierPrice}`
+          : tierName ||
+            tierPrice ||
+            "Your Nazarana";
+    }
+
+    if (deadline) {
+      deadline.textContent =
+        formatPortalDate(
+          result.campaign?.deadline
+        );
+    }
+
+    hideElement(loading);
+    showElement(portal);
+
+    if (
+      result.selection_locked
+    ) {
+      renderLockedSelection(
+        result.selected_gift
+      );
+
+      return;
+    }
+
+    renderGiftOptions(
+      result.options || []
+    );
+
+  } catch (error) {
+    console.error(
+      "Portal load error:",
+      error
+    );
+
+    showPortalError(
+      "We couldn't connect to Nazarana right now. Please try again."
+    );
+  }
+}
+
+
+/* ---------------------------------------------------------
+   CONFIRM SELECTION
+   --------------------------------------------------------- */
+
+async function confirmGiftSelection() {
+  if (!pendingGift) {
+    return;
+  }
+
+  const button =
+    document.getElementById(
+      "confirmSelectionButton"
+    );
+
+  const message =
+    document.getElementById(
+      "selectionModalMessage"
+    );
+
+  setButtonLoading(
+    button,
+    true,
+    "Confirming..."
+  );
+
+  if (message) {
+    hideElement(message);
+  }
+
+  try {
+    const result =
+      await callEmployeeGifts({
+        action: "select_gift",
+
+        campaign_slug:
+          getCampaignSlug(),
+
+        gift_edit_id:
+          pendingGift.gift_edit_id
+      });
+
+    if (!result.success) {
+      if (message) {
+        message.textContent =
+          result.message ||
+          "We couldn't save your selection.";
+
+        showElement(message);
+      }
+
+      if (
+        result.code ===
+        "SELECTION_LOCKED"
+      ) {
+        closeSelectionModal();
+
+        await initialiseEmployeePortal();
+      }
+
+      return;
+    }
+
+    const selected =
+      result.selection
+        ? {
+            gift_edit_id:
+              result.selection.gift_edit_id,
+
+            name:
+              result.selection.gift_edit?.name,
+
+            tagline:
+              result.selection.gift_edit?.tagline,
+
+            lifestyle_image_url:
+              result.selection.gift_edit
+                ?.lifestyle_image_url,
+
+            hamper:
+              result.selection.hamper
+          }
+        : pendingGift;
+
+    closeSelectionModal();
+
+    renderLockedSelection(
+      selected
+    );
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+  } catch (error) {
+    console.error(
+      "Selection error:",
+      error
+    );
+
+    if (message) {
+      message.textContent =
+        "We couldn't save your selection. Please try again.";
+
+      showElement(message);
+    }
+
+  } finally {
+    setButtonLoading(
+      button,
+      false
+    );
+  }
+}
+
+
+/* ---------------------------------------------------------
+   PORTAL EVENTS
+   --------------------------------------------------------- */
+
+function initialisePortalEvents() {
+  const close =
+    document.getElementById(
+      "closeSelectionModal"
+    );
+
+  const cancel =
+    document.getElementById(
+      "cancelSelectionButton"
+    );
+
+  const confirm =
+    document.getElementById(
+      "confirmSelectionButton"
+    );
+
+  const overlay =
+    document.querySelector(
+      ".selection-modal-overlay"
+    );
+
+  const logout =
+    document.getElementById(
+      "employeeLogoutButton"
+    );
+
+  if (close) {
+    close.addEventListener(
+      "click",
+      closeSelectionModal
+    );
+  }
+
+  if (cancel) {
+    cancel.addEventListener(
+      "click",
+      closeSelectionModal
+    );
+  }
+
+  if (overlay) {
+    overlay.addEventListener(
+      "click",
+      closeSelectionModal
+    );
+  }
+
+  if (confirm) {
+    confirm.addEventListener(
+      "click",
+      confirmGiftSelection
+    );
+  }
+
+  if (logout) {
+    logout.addEventListener(
+      "click",
+      () => {
+        const campaign =
+          getCampaignSlug();
+
+        clearEmployeeSession();
+
+        window.location.href =
+          campaign
+            ? `employee-login.html?campaign=${encodeURIComponent(
+                campaign
+              )}`
+            : "employee-login.html";
+      }
+    );
+  }
+}
+
+
+/* =========================================================
+   START EMPLOYEE PORTAL
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    initialisePortalEvents();
+    initialiseEmployeePortal();
+  }
+);
