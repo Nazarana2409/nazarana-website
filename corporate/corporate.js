@@ -1329,7 +1329,7 @@ function openSelectionModal(option) {
 
   const hamperImage =
     option.hamper?.image_url ||
-    placeholderImage("hamper");
+    placeholderImage("lifestyle");
 
   preview.innerHTML = `
     <img
