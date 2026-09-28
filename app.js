@@ -26,6 +26,14 @@ const silverProducts=[
 {name:'Floral Heritage Frame',price:1299,img:'assets/silver/image19.webp',desc:'Floral silver-coated heritage frame',group:'frames'},
 {name:'Rosette Heritage Frame',price:1299,img:'assets/silver/image20.webp',desc:'Rosette and songbird heritage frame',group:'frames'}];
 
+products.forEach((product, index) => {
+  product.code = `festive-${index}`;
+});
+
+silverProducts.forEach((product, index) => {
+  product.code = `silver-${index}`;
+});
+
 let cart=JSON.parse(localStorage.getItem('nazaranaCart')||'[]');const fmt=n=>'₹'+n.toLocaleString('en-IN');
 const grid=document.getElementById('products');grid.innerHTML=products.map((p,i)=>`<article class="card"><a class="product-link" href="product.html?type=festive&id=${i}"><img src="${p.img}" alt="${p.name}"></a><div class="card-row"><div><h3>${p.name}</h3><p>${p.desc}</p><strong>${fmt(p.price)}</strong></div><button class="add" onclick="add(${i})">Add to bag</button></div></article>`).join('');
 
