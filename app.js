@@ -50,3 +50,129 @@ const groups=[
 function silverCard(p){const i=silverProducts.indexOf(p);return `<article class="silver-card"><a class="product-link" href="product.html?type=silver&id=${i}"><div class="silver-media"><img src="${p.img}" alt="${p.name}" loading="lazy"></div></a><div class="silver-info"><div><h3>${p.name}</h3><p>${p.desc}</p><strong>${fmt(p.price)}</strong></div><button class="add" onclick="addSilver(${i})">Add to bag</button></div></article>`}
 silverGrid.innerHTML=groups.map(g=>{const items=silverProducts.filter(p=>p.group===g.key);return `<section class="silver-group ${g.layout}"><div class="silver-group-head"><p class="eyebrow">${g.label}</p><h3>${g.title}</h3></div><div class="silver-row">${items.map(silverCard).join('')}</div></section>`}).join('');
 function save(){localStorage.setItem('nazaranaCart',JSON.stringify(cart))}function add(i){cart.push(products[i]);save();render();openBag()}function addSilver(i){cart.push(silverProducts[i]);save();render();openBag()}function render(){document.getElementById('count').textContent=cart.length;document.getElementById('cart').innerHTML=cart.length?cart.map((p,i)=>`<div class="cart-item"><img src="${p.img}"><div><h4>${p.name}</h4><p>${fmt(p.price)}</p><button class="add" onclick="removeItem(${i})">Remove</button></div></div>`).join(''):'<p style="padding:30px 0;color:#777">Your bag is waiting for something thoughtful.</p>';document.getElementById('total').textContent=fmt(cart.reduce((s,p)=>s+p.price,0))}function removeItem(i){cart.splice(i,1);save();render()}function openBag(){drawer.classList.add('open');overlay.classList.add('open')}function closeBag(){drawer.classList.remove('open');overlay.classList.remove('open')}const drawer=document.getElementById('drawer'),overlay=document.getElementById('overlay');document.getElementById('bagBtn').onclick=openBag;document.getElementById('close').onclick=closeBag;overlay.onclick=closeBag;document.getElementById('checkout').onclick=()=>{if(cart.length) location.href='cart.html'; else alert('Add a gift to your bag first.')};render();
+
+
+/* =========================================
+   CORPORATE NAVIGATION DROPDOWN
+========================================= */
+
+const corporateDropdown =
+  document.querySelector(".nav-dropdown");
+
+const corporateTrigger =
+  document.querySelector(
+    ".nav-dropdown-trigger"
+  );
+
+
+if (
+  corporateDropdown &&
+  corporateTrigger
+) {
+
+  /* Open / close when Corporate is clicked */
+
+  corporateTrigger.addEventListener(
+    "click",
+    (event) => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const isOpen =
+        corporateDropdown.classList.toggle(
+          "open"
+        );
+
+      corporateTrigger.setAttribute(
+        "aria-expanded",
+        String(isOpen)
+      );
+
+    }
+  );
+
+
+  /* Close when clicking anywhere outside */
+
+  document.addEventListener(
+    "click",
+    (event) => {
+
+      if (
+        !corporateDropdown.contains(
+          event.target
+        )
+      ) {
+
+        corporateDropdown.classList.remove(
+          "open"
+        );
+
+        corporateTrigger.setAttribute(
+          "aria-expanded",
+          "false"
+        );
+
+      }
+
+    }
+  );
+
+
+  /* Close using Escape key */
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+
+      if (event.key === "Escape") {
+
+        corporateDropdown.classList.remove(
+          "open"
+        );
+
+        corporateTrigger.setAttribute(
+          "aria-expanded",
+          "false"
+        );
+
+        corporateTrigger.blur();
+
+      }
+
+    }
+  );
+
+
+  /* Close after selecting an option */
+
+  const corporateLinks =
+    corporateDropdown.querySelectorAll(
+      ".nav-dropdown-menu a"
+    );
+
+
+  corporateLinks.forEach(
+    (link) => {
+
+      link.addEventListener(
+        "click",
+        () => {
+
+          corporateDropdown.classList.remove(
+            "open"
+          );
+
+          corporateTrigger.setAttribute(
+            "aria-expanded",
+            "false"
+          );
+
+        }
+      );
+
+    }
+  );
+
+}
