@@ -149,7 +149,43 @@
       border-color: #651828;
     }
 
-    button {
+    .password-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 9px;
+    }
+
+    .password-row label {
+      margin-bottom: 0;
+    }
+
+    .forgot-password {
+      border: 0;
+      background: transparent;
+      color: #651828;
+      width: auto;
+      height: auto;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      font-size: 11px;
+      letter-spacing: 0;
+      text-transform: none;
+      cursor: pointer;
+    }
+
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
+
+    .forgot-password:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+
+    .login-button {
       width: 100%;
       height: 54px;
       border: 0;
@@ -163,7 +199,7 @@
       text-transform: uppercase;
     }
 
-    button:disabled {
+    .login-button:disabled {
       opacity: 0.65;
       cursor: wait;
     }
@@ -174,6 +210,10 @@
       color: #9c2f3f;
       font-size: 13px;
       line-height: 1.5;
+    }
+
+    #message.success {
+      color: #496653;
     }
 
     .support {
@@ -226,12 +266,14 @@
 
     <div>
       <div class="brand">NAZARANA</div>
+
       <div class="tagline">
         AN OFFERING WITH LOVE AND RESPECT
       </div>
     </div>
 
     <div class="statement">
+
       <div class="eyebrow">
         Corporate Gifting
       </div>
@@ -245,6 +287,7 @@
         Your dedicated workspace to manage employee gifting,
         selections and campaign progress.
       </p>
+
     </div>
 
     <div class="brand-footer">
@@ -268,9 +311,11 @@
         Sign in to manage your organisation's gifting programme.
       </p>
 
+
       <form id="loginForm">
 
         <div class="field">
+
           <label for="email">
             Corporate email
           </label>
@@ -281,12 +326,27 @@
             autocomplete="email"
             required
           >
+
         </div>
 
+
         <div class="field">
-          <label for="password">
-            Password
-          </label>
+
+          <div class="password-row">
+
+            <label for="password">
+              Password
+            </label>
+
+            <button
+              class="forgot-password"
+              id="forgotPasswordButton"
+              type="button"
+            >
+              Forgot password?
+            </button>
+
+          </div>
 
           <input
             id="password"
@@ -294,15 +354,27 @@
             autocomplete="current-password"
             required
           >
+
         </div>
 
-        <button id="loginButton" type="submit">
+
+        <button
+          class="login-button"
+          id="loginButton"
+          type="submit"
+        >
           Sign in securely
         </button>
 
-        <div id="message"></div>
+
+        <div
+          id="message"
+          role="status"
+          aria-live="polite"
+        ></div>
 
       </form>
+
 
       <div class="support">
         Having trouble accessing your corporate gifting
@@ -322,15 +394,18 @@
     createClient
   } from "https://esm.sh/@supabase/supabase-js@2";
 
+
   const SUPABASE_URL =
     "https://seogmslimxytpeoynath.supabase.co";
 
-  /*
-    Paste your existing Supabase PUBLISHABLE / ANON key below.
-    This is the browser-safe key — NOT the service-role key.
-  */
+
   const SUPABASE_ANON_KEY =
     "sb_publishable_MpiriYPS7XgmYaeg_kU5gg_hULjj2wq";
+
+
+  const PASSWORD_RESET_URL =
+    "https://www.nazarana.co.in/reset-password.html";
+
 
   const supabase =
     createClient(
@@ -338,14 +413,41 @@
       SUPABASE_ANON_KEY
     );
 
+
   const form =
-    document.getElementById("loginForm");
+    document.getElementById(
+      "loginForm"
+    );
+
+
+  const emailInput =
+    document.getElementById(
+      "email"
+    );
+
+
+  const passwordInput =
+    document.getElementById(
+      "password"
+    );
+
 
   const message =
-    document.getElementById("message");
+    document.getElementById(
+      "message"
+    );
 
-  const button =
-    document.getElementById("loginButton");
+
+  const loginButton =
+    document.getElementById(
+      "loginButton"
+    );
+
+
+  const forgotPasswordButton =
+    document.getElementById(
+      "forgotPasswordButton"
+    );
 
 
   /*
@@ -354,15 +456,25 @@
   */
 
   const {
-    data: { session }
+    data: {
+      session
+    }
   } =
-    await supabase.auth.getSession();
+    await supabase.auth
+      .getSession();
+
 
   if (session) {
+
     location.href =
       "hr-dashboard.html";
+
   }
 
+
+  /*
+    Standard HR login.
+  */
 
   form.addEventListener(
     "submit",
@@ -370,21 +482,32 @@
 
       event.preventDefault();
 
-      message.textContent = "";
-      button.disabled = true;
-      button.textContent =
+
+      clearMessage();
+
+
+      loginButton.disabled =
+        true;
+
+
+      forgotPasswordButton.disabled =
+        true;
+
+
+      loginButton.textContent =
         "Signing in…";
 
+
       const email =
-        document
-          .getElementById("email")
+        emailInput
           .value
           .trim();
 
+
       const password =
-        document
-          .getElementById("password")
+        passwordInput
           .value;
+
 
       const {
         data,
@@ -396,31 +519,226 @@
             password
           });
 
+
       if (
         error ||
         !data.session
       ) {
-        message.textContent =
-          error?.message ||
-          "Unable to sign in.";
 
-        button.disabled = false;
-        button.textContent =
+        showMessage(
+          error?.message ||
+          "Unable to sign in.",
+          false
+        );
+
+
+        loginButton.disabled =
+          false;
+
+
+        forgotPasswordButton.disabled =
+          false;
+
+
+        loginButton.textContent =
           "Sign in securely";
 
+
         return;
+
       }
+
 
       /*
         Authentication succeeded.
-        hr-dashboard will perform the
+        hr-dashboard performs the
         actual HR-authorisation check.
       */
 
       location.href =
         "hr-dashboard.html";
+
     }
   );
+
+
+  /*
+    Password recovery.
+  */
+
+  forgotPasswordButton
+    .addEventListener(
+      "click",
+      async () => {
+
+        clearMessage();
+
+
+        const email =
+          emailInput
+            .value
+            .trim();
+
+
+        if (!email) {
+
+          showMessage(
+            "Enter your corporate email above, then select Forgot password.",
+            false
+          );
+
+
+          emailInput.focus();
+
+          return;
+
+        }
+
+
+        if (
+          !emailInput
+            .checkValidity()
+        ) {
+
+          showMessage(
+            "Enter a valid corporate email address.",
+            false
+          );
+
+
+          emailInput.focus();
+
+          return;
+
+        }
+
+
+        forgotPasswordButton.disabled =
+          true;
+
+
+        loginButton.disabled =
+          true;
+
+
+        forgotPasswordButton.textContent =
+          "Sending…";
+
+
+        const {
+          error
+        } =
+          await supabase.auth
+            .resetPasswordForEmail(
+              email,
+              {
+                redirectTo:
+                  PASSWORD_RESET_URL
+              }
+            );
+
+
+        if (error) {
+
+          console.error(
+            "Password recovery error:",
+            error
+          );
+
+
+          let recoveryMessage =
+            error.message ||
+            "Unable to send the password reset email.";
+
+
+          if (
+            recoveryMessage
+              .toLowerCase()
+              .includes(
+                "rate limit"
+              )
+          ) {
+
+            recoveryMessage =
+              "Too many reset emails have been requested. Please wait before trying again.";
+
+          }
+
+
+          showMessage(
+            recoveryMessage,
+            false
+          );
+
+
+          forgotPasswordButton.disabled =
+            false;
+
+
+          loginButton.disabled =
+            false;
+
+
+          forgotPasswordButton.textContent =
+            "Forgot password?";
+
+
+          return;
+
+        }
+
+
+        showMessage(
+          "Password reset email sent. Please check your inbox and use the link to create a new password.",
+          true
+        );
+
+
+        forgotPasswordButton.textContent =
+          "Email sent";
+
+
+        /*
+          Keep the recovery button disabled
+          after success so repeated clicks do
+          not generate unnecessary emails.
+        */
+
+        loginButton.disabled =
+          false;
+
+      }
+    );
+
+
+  function clearMessage() {
+
+    message.textContent =
+      "";
+
+
+    message.classList.remove(
+      "success"
+    );
+
+  }
+
+
+  function showMessage(
+    text,
+    success
+  ) {
+
+    message.textContent =
+      text;
+
+
+    message.classList.toggle(
+      "success",
+      Boolean(success)
+    );
+
+  }
 
 </script>
 
