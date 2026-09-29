@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>HR Dashboard | Nazarana</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Italiana&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --burgundy: #651828;
+      --burgundy-dark: #4f101d;
+      --ivory: #f7f3ec;
+      --paper: #fffdf9;
+      --ink: #241c18;
+      --muted: #80746b;
+      --line: #ded4c8;
+      --gold: #a7864f;
+      --green: #496653;
+    }
+
+    body {
+      margin: 0;
+      background: var(--ivory);
+      color: var(--ink);
+      font-family: "DM Sans", sans-serif;
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    /* HEADER */
+
+    .header {
+      height: 88px;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 5vw;
+
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      font-family: "Italiana", serif;
+      font-size: 27px;
+      letter-spacing: 5px;
+    }
+
+    .brand-sub {
+      font-size: 9px;
+      letter-spacing: 2px;
+      margin-top: 5px;
+      color: var(--muted);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .hr-name {
+      font-size: 13px;
+    }
+
+    .logout {
+      background: none;
+      border: none;
+      cursor: pointer;
+
+      color: var(--burgundy);
+
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* MAIN */
+
+    .container {
+      max-width: 1400px;
+      margin: auto;
+      padding: 55px 5vw 90px;
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 15px;
+    }
+
+    .welcome {
+      display: flex;
+      justify-content: space-between;
+      gap: 40px;
+      align-items: flex-end;
+
+      margin-bottom: 45px;
+    }
+
+    .welcome h1 {
+      font-family: "Italiana", serif;
+      font-weight: 400;
+      font-size: clamp(38px, 5vw, 58px);
+      margin: 0 0 12px;
+    }
+
+    .company {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .campaign-box {
+      min-width: 310px;
+      background: var(--burgundy);
+      color: white;
+      padding: 24px 27px;
+    }
+
+    .campaign-label {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: .7;
+    }
+
+    .campaign-name {
+      font-family: "Italiana", serif;
+      font-size: 25px;
+      margin: 9px 0 13px;
+    }
+
+    .campaign-meta {
+      font-size: 12px;
+      opacity: .8;
+    }
+
+    /* STATS */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .stat {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 28px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    .stat-value {
+      font-family: "Italiana", serif;
+      font-size: 43px;
+      margin-top: 13px;
+    }
+
+    /* PROGRESS */
+
+    .progress-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 25px 28px;
+      margin-bottom: 45px;
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .progress-title {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .progress-value {
+      font-size: 12px;
+      color: var(--burgundy);
+      font-weight: 600;
+    }
+
+    .progress-track {
+      height: 7px;
+      background: #e7dfd5;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--burgundy);
+      transition: width .6s ease;
+    }
+
+    /* TABLE HEADER */
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 25px;
+      margin-bottom: 20px;
+    }
+
+    .section-head h2 {
+      font-family: "Italiana", serif;
+      font-size: 32px;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    .tools {
+      display: flex;
+      gap: 10px;
+    }
+
+    .search {
+      height: 42px;
+      width: 260px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      padding: 0 13px;
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: var(--burgundy);
+    }
+
+    .export {
+      height: 42px;
+      padding: 0 20px;
+      border: 1px solid var(--burgundy);
+      background: transparent;
+      color: var(--burgundy);
+      cursor: pointer;
+
+      font-size: 10px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+    }
+
+    .export:hover {
+      background: var(--burgundy);
+      color: white;
+    }
+
+    /* TABLE */
+
+    .table-wrap {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1050px;
+    }
+
+    th {
+      text-align: left;
+      padding: 16px 18px;
+
+      font-size: 9px;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+
+      color: var(--muted);
+
+      border-bottom: 1px solid var(--line);
+      background: #faf7f1;
+    }
+
+    td {
+      padding: 18px;
+      border-bottom: 1px solid #eee7de;
+      font-size: 12px;
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .employee-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .employee-email {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .status {
+      display: inline-block;
+      padding: 6px 10px;
+
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .status.completed {
+      background: #e7efe8;
+      color: var(--green);
+    }
+
+    .status.pending {
+      background: #f2e8e4;
+      color: #915142;
+    }
+
+    .gift-name {
+      font-weight: 500;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    /* LOADING */
+
+    .loading {
+      min-height: 55vh;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .error {
+      max-width: 600px;
+      margin: 100px auto;
+      text-align: center;
+    }
+
+    .error h2 {
+      font-family: "Italiana", serif;
+      font-size: 36px;
+      font-weight: 400;
+    }
+
+    .error p {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 950px) {
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .welcome {
+        display: block;
+      }
+
+      .campaign-box {
+        margin-top: 30px;
+      }
+
+    }
+
+    @media (max-width: 650px) {
+
+      .header {
+        height: 75px;
+        padding: 0 22px;
+      }
+
+      .brand {
+        font-size: 21px;
+      }
+
+      .brand-sub,
+      .hr-name {
+        display: none;
+      }
+
+      .container {
+        padding: 38px 20px 70px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .stat {
+        padding: 20px;
+      }
+
+      .stat-value {
+        font-size: 35px;
+      }
+
+      .campaign-box {
+        min-width: 0;
+      }
+
+      .section-head {
+        display: block;
+      }
+
+      .tools {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .search {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+
+<body>
+
+<header class="header">
+
+  <div>
+    <div class="brand">NAZARANA</div>
+
+    <div class="brand-sub">
+      CORPORATE GIFTING
+    </div>
+  </div>
+
+  <div class="header-right">
+
+    <span
+      class="hr-name"
+      id="headerHrName">
+    </span>
+
+    <button
+      class="logout"
+      id="logoutButton">
+      Logout
+    </button>
+
+  </div>
+
+</header>
+
+
+<div
+  id="loading"
+  class="loading">
+  Loading your corporate gifting dashboard…
+</div>
+
+
+<main
+  id="dashboard"
+  class="container hidden">
+
+  <section class="welcome">
+
+    <div>
+
+      <div class="eyebrow">
+        HR Dashboard
+      </div>
+
+      <h1 id="welcomeName">
+        Welcome
+      </h1>
+
+      <div
+        class="company"
+        id="companyName">
+      </div>
+
+    </div>
+
+
+    <div class="campaign-box">
+
+      <div class="campaign-label">
+        Current Campaign
+      </div>
+
+      <div
+        class="campaign-name"
+        id="campaignName">
+      </div>
+
+      <div
+        class="campaign-meta"
+        id="campaignDeadline">
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section class="stats">
+
+    <article class="stat">
+      <div class="stat-label">
+        Total Employees
+      </div>
+
+      <div
+        class="stat-value"
+        id="totalEmployees">
+        0
+      </div>
+    </article>
+
+
+    <article class="stat">
+      <div class="stat-label">
+        Selections Received
+      </div>
+
+      <div
+        class="stat-value"
+        id="completedSelections">
+        0
+      </div>
+    </article>
+
+
+    <article class="stat">
+      <div class="stat-label">
+        Pending
+      </div>
+
+      <div
+        class="stat-value"
+        id="pendingSelections">
+        0
+      </div>
+    </article>
+
+
+    <article class="stat">
+      <div class="stat-label">
+        Completion
+      </div>
+
+      <div
+        class="stat-value"
+        id="completionPercentage">
+        0%
+      </div>
+    </article>
+
+  </section>
+
+
+  <section class="progress-card">
+
+    <div class="progress-head">
+
+      <span class="progress-title">
+        Employee Selection Progress
+      </span>
+
+      <span
+        class="progress-value"
+        id="progressText">
+        0%
+      </span>
+
+    </div>
+
+    <div class="progress-track">
+      <div
+        class="progress-fill"
+        id="progressFill">
+      </div>
+    </div>
+
+  </section>
+
+
+  <section>
+
+    <div class="section-head">
+
+      <div>
+
+        <div class="eyebrow">
+          Campaign Participants
+        </div>
+
+        <h2>
+          Employees & Selections
+        </h2>
+
+      </div>
+
+
+      <div class="tools">
+
+        <input
+          id="searchInput"
+          class="search"
+          type="search"
+          placeholder="Search employee…"
+        >
+
+        <button
+          id="exportButton"
+          class="export">
+          Export CSV
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Employee ID</th>
+            <th>Mobile</th>
+            <th>Gift Tier</th>
+            <th>Status</th>
+            <th>Selected Gift</th>
+            <th>Selected On</th>
+            <th>Fulfilment</th>
+          </tr>
+        </thead>
+
+        <tbody id="employeeTable">
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<div
+  id="errorBox"
+  class="error hidden">
+
+  <h2>Unable to load dashboard</h2>
+
+  <p id="errorMessage">
+    Please sign in again.
+  </p>
+
+</div>
+
+
+<script type="module">
+
+  import {
+    createClient
+  } from "https://esm.sh/@supabase/supabase-js@2";
+
+
+  const SUPABASE_URL =
+    "https://seogmslimxytpeoynath.supabase.co";
+
+  /*
+    IMPORTANT:
+    Paste the SAME browser-safe publishable/anon key
+    that you used in hr-login.html.
+  */
+
+  const SUPABASE_ANON_KEY =
+    "sb_publishable_MpiriYPS7XgmYaeg_kU5gg_hULjj2wq";
+
+
+  const HR_FUNCTION =
+    SUPABASE_URL +
+    "/functions/v1/hr-dashboard";
+
+
+  const supabase =
+    createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+
+  let dashboardData = null;
+  let visibleEmployees = [];
+
+
+  const loading =
+    document.getElementById("loading");
+
+  const dashboard =
+    document.getElementById("dashboard");
+
+  const errorBox =
+    document.getElementById("errorBox");
+
+  const errorMessage =
+    document.getElementById("errorMessage");
+
+
+  /* ---------------------------------
+     AUTHENTICATION
+  --------------------------------- */
+
+  const {
+    data: { session }
+  } =
+    await supabase.auth.getSession();
+
+
+  if (!session) {
+
+    location.href =
+      "hr-login.html";
+
+  } else {
+
+    loadDashboard(session);
+
+  }
+
+
+  /* ---------------------------------
+     LOAD DASHBOARD
+  --------------------------------- */
+
+  async function loadDashboard(session) {
+
+    try {
+
+      const response =
+        await fetch(
+          HR_FUNCTION,
+          {
+            method: "GET",
+
+            headers: {
+              "Authorization":
+                "Bearer " +
+                session.access_token,
+
+              "Content-Type":
+                "application/json"
+            }
+          }
+        );
+
+
+      const result =
+        await response.json();
+
+
+      if (
+        !response.ok ||
+        !result.success
+      ) {
+
+        throw new Error(
+          result.message ||
+          "Unable to load dashboard."
+        );
+
+      }
+
+
+      dashboardData = result;
+
+      visibleEmployees =
+        result.employees || [];
+
+
+      renderDashboard();
+
+
+      loading.classList.add("hidden");
+
+      dashboard.classList.remove(
+        "hidden"
+      );
+
+
+    } catch (error) {
+
+      console.error(error);
+
+      loading.classList.add("hidden");
+
+      errorBox.classList.remove(
+        "hidden"
+      );
+
+      errorMessage.textContent =
+        error.message ||
+        "Please sign in again.";
+
+    }
+
+  }
+
+
+  /* ---------------------------------
+     RENDER DASHBOARD
+  --------------------------------- */
+
+  function renderDashboard() {
+
+    const data =
+      dashboardData;
+
+
+    document.getElementById(
+      "headerHrName"
+    ).textContent =
+      data.hr?.full_name || "";
+
+
+    document.getElementById(
+      "welcomeName"
+    ).textContent =
+      "Welcome, " +
+      firstName(
+        data.hr?.full_name
+      );
+
+
+    document.getElementById(
+      "companyName"
+    ).textContent =
+      data.company?.name || "";
+
+
+    if (data.active_campaign) {
+
+      document.getElementById(
+        "campaignName"
+      ).textContent =
+        data.active_campaign.name;
+
+
+      document.getElementById(
+        "campaignDeadline"
+      ).textContent =
+        data.active_campaign.deadline
+          ? "Selection deadline · " +
+            formatDate(
+              data.active_campaign
+                .deadline
+            )
+          : "No selection deadline";
+
+    } else {
+
+      document.getElementById(
+        "campaignName"
+      ).textContent =
+        "No active campaign";
+
+
+      document.getElementById(
+        "campaignDeadline"
+      ).textContent =
+        "Your Nazarana campaign will appear here.";
+
+    }
+
+
+    const stats =
+      data.stats || {};
+
+
+    document.getElementById(
+      "totalEmployees"
+    ).textContent =
+      stats.total_employees || 0;
+
+
+    document.getElementById(
+      "completedSelections"
+    ).textContent =
+      stats.selections_completed || 0;
+
+
+    document.getElementById(
+      "pendingSelections"
+    ).textContent =
+      stats.selections_pending || 0;
+
+
+    const percentage =
+      stats.completion_percentage || 0;
+
+
+    document.getElementById(
+      "completionPercentage"
+    ).textContent =
+      percentage + "%";
+
+
+    document.getElementById(
+      "progressText"
+    ).textContent =
+      percentage + "% complete";
+
+
+    document.getElementById(
+      "progressFill"
+    ).style.width =
+      percentage + "%";
+
+
+    renderEmployees(
+      visibleEmployees
+    );
+
+  }
+
+
+  /* ---------------------------------
+     EMPLOYEE TABLE
+  --------------------------------- */
+
+  function renderEmployees(employees) {
+
+    const tbody =
+      document.getElementById(
+        "employeeTable"
+      );
+
+
+    if (!employees.length) {
+
+      tbody.innerHTML = `
+        <tr>
+          <td
+            colspan="8"
+            style="
+              text-align:center;
+              padding:40px;
+              color:#80746b;
+            "
+          >
+            No employees found.
+          </td>
+        </tr>
+      `;
+
+      return;
+
+    }
+
+
+    tbody.innerHTML =
+      employees
+        .map((employee) => {
+
+          const completed =
+            employee.selection_status ===
+            "completed";
+
+
+          return `
+            <tr>
+
+              <td>
+                <div class="employee-name">
+                  ${escapeHtml(
+                    employee.full_name ||
+                    "—"
+                  )}
+                </div>
+
+                <div class="employee-email">
+                  ${escapeHtml(
+                    employee.email ||
+                    ""
+                  )}
+                </div>
+              </td>
+
+
+              <td>
+                ${escapeHtml(
+                  employee.employee_code ||
+                  "—"
+                )}
+              </td>
+
+
+              <td>
+                ${escapeHtml(
+                  employee.phone ||
+                  "—"
+                )}
+              </td>
+
+
+              <td>
+                ${
+                  employee.gift_tier
+                    ? escapeHtml(
+                        employee
+                          .gift_tier
+                          .name
+                      )
+                    : "—"
+                }
+              </td>
+
+
+              <td>
+                <span
+                  class="status ${
+                    completed
+                      ? "completed"
+                      : "pending"
+                  }"
+                >
+                  ${
+                    completed
+                      ? "Selected"
+                      : "Pending"
+                  }
+                </span>
+              </td>
+
+
+              <td>
+                ${
+                  employee.selected_gift
+                    ? `
+                      <span class="gift-name">
+                        ${escapeHtml(
+                          employee
+                            .selected_gift
+                            .name
+                        )}
+                      </span>
+                    `
+                    : `
+                      <span class="muted">
+                        Not selected
+                      </span>
+                    `
+                }
+              </td>
+
+
+              <td>
+                ${
+                  employee.selected_at
+                    ? formatDate(
+                        employee
+                          .selected_at
+                      )
+                    : "—"
+                }
+              </td>
+
+
+              <td>
+                ${formatStatus(
+                  employee
+                    .fulfilment_status
+                )}
+              </td>
+
+            </tr>
+          `;
+
+        })
+        .join("");
+
+  }
+
+
+  /* ---------------------------------
+     SEARCH
+  --------------------------------- */
+
+  document
+    .getElementById("searchInput")
+    .addEventListener(
+      "input",
+      (event) => {
+
+        const query =
+          event.target.value
+            .trim()
+            .toLowerCase();
+
+
+        if (!query) {
+
+          visibleEmployees =
+            dashboardData.employees ||
+            [];
+
+        } else {
+
+          visibleEmployees =
+            (
+              dashboardData.employees ||
+              []
+            ).filter(
+              (employee) => {
+
+                const searchable = [
+                  employee.full_name,
+                  employee.email,
+                  employee.phone,
+                  employee.employee_code,
+                  employee.gift_tier?.name,
+                  employee.selected_gift
+                    ?.name,
+                  employee.selection_status,
+                  employee
+                    .fulfilment_status
+                ]
+                  .filter(Boolean)
+                  .join(" ")
+                  .toLowerCase();
+
+
+                return searchable.includes(
+                  query
+                );
+
+              }
+            );
+
+        }
+
+
+        renderEmployees(
+          visibleEmployees
+        );
+
+      }
+    );
+
+
+  /* ---------------------------------
+     CSV EXPORT
+  --------------------------------- */
+
+  document
+    .getElementById("exportButton")
+    .addEventListener(
+      "click",
+      () => {
+
+        const employees =
+          dashboardData?.employees ||
+          [];
+
+
+        if (!employees.length) {
+          return;
+        }
+
+
+        const rows = [
+
+          [
+            "Employee ID",
+            "Employee Name",
+            "Email",
+            "Mobile",
+            "Gift Tier",
+            "Selection Status",
+            "Selected Gift",
+            "Selected On",
+            "Fulfilment Status"
+          ],
+
+          ...employees.map(
+            (employee) => [
+
+              employee.employee_code ||
+                "",
+
+              employee.full_name ||
+                "",
+
+              employee.email ||
+                "",
+
+              employee.phone ||
+                "",
+
+              employee.gift_tier
+                ?.name || "",
+
+              employee.selection_status ||
+                "",
+
+              employee.selected_gift
+                ?.name || "",
+
+              employee.selected_at
+                ? formatDate(
+                    employee.selected_at
+                  )
+                : "",
+
+              employee
+                .fulfilment_status ||
+                ""
+
+            ]
+          )
+
+        ];
+
+
+        const csv =
+          rows
+            .map(
+              (row) =>
+                row
+                  .map(csvCell)
+                  .join(",")
+            )
+            .join("\n");
+
+
+        const blob =
+          new Blob(
+            [csv],
+            {
+              type:
+                "text/csv;charset=utf-8;"
+            }
+          );
+
+
+        const url =
+          URL.createObjectURL(blob);
+
+
+        const link =
+          document.createElement("a");
+
+
+        link.href = url;
+
+        link.download =
+          "nazarana-" +
+          safeFilename(
+            dashboardData
+              .active_campaign
+              ?.name ||
+            "campaign"
+          ) +
+          "-selections.csv";
+
+
+        document.body.appendChild(
+          link
+        );
+
+        link.click();
+
+        link.remove();
+
+        URL.revokeObjectURL(url);
+
+      }
+    );
+
+
+  /* ---------------------------------
+     LOGOUT
+  --------------------------------- */
+
+  document
+    .getElementById("logoutButton")
+    .addEventListener(
+      "click",
+      async () => {
+
+        await supabase.auth.signOut();
+
+        location.href =
+          "hr-login.html";
+
+      }
+    );
+
+
+  /* ---------------------------------
+     HELPERS
+  --------------------------------- */
+
+  function firstName(name) {
+
+    if (!name) {
+      return "there";
+    }
+
+    return name
+      .trim()
+      .split(/\s+/)[0];
+
+  }
+
+
+  function formatDate(value) {
+
+    if (!value) {
+      return "—";
+    }
+
+
+    const date =
+      new Date(value);
+
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+      return "—";
+    }
+
+
+    return new Intl.DateTimeFormat(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      }
+    ).format(date);
+
+  }
+
+
+  function formatStatus(value) {
+
+    if (!value) {
+      return "—";
+    }
+
+
+    return value
+      .replaceAll("_", " ")
+      .replace(
+        /\b\w/g,
+        (letter) =>
+          letter.toUpperCase()
+      );
+
+  }
+
+
+  function csvCell(value) {
+
+    const text =
+      String(value ?? "");
+
+
+    return (
+      '"' +
+      text.replaceAll(
+        '"',
+        '""'
+      ) +
+      '"'
+    );
+
+  }
+
+
+  function safeFilename(value) {
+
+    return String(value)
+      .toLowerCase()
+      .replace(
+        /[^a-z0-9]+/g,
+        "-"
+      )
+      .replace(
+        /^-+|-+$/g,
+        ""
+      );
+
+  }
+
+
+  function escapeHtml(value) {
+
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+  }
+
+</script>
+
+</body>
+</html>
