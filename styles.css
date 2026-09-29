@@ -228,3 +228,76 @@
   }
 
 }
+
+/* =========================================
+   HEADER RIGHT ACTIONS
+========================================= */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 28px;
+}
+
+.header-actions .nav-dropdown {
+  display: flex;
+  align-items: center;
+}
+
+.corporate-login-trigger {
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+
+/* Right-align dropdown with Corporate */
+
+.header-actions .nav-dropdown-menu {
+  left: auto;
+  right: 0;
+
+  transform: translateY(7px);
+}
+
+
+/* Open position */
+
+.header-actions .nav-dropdown:hover
+.nav-dropdown-menu,
+
+.header-actions .nav-dropdown:focus-within
+.nav-dropdown-menu,
+
+.header-actions .nav-dropdown.open
+.nav-dropdown-menu {
+
+  transform: translateY(0);
+}
+
+
+/* =========================================
+   TABLET / MOBILE
+========================================= */
+
+@media (max-width: 800px) {
+
+  .header-actions {
+    gap: 14px;
+  }
+
+  .corporate-login-trigger {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .header-actions .nav-dropdown-menu {
+    left: auto;
+    right: 0;
+
+    width: min(285px, 88vw);
+  }
+
+}
