@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>HR Login | Nazarana Corporate Gifting</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Italiana&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f7f3ec;
+      color: #241c18;
+      font-family: "DM Sans", sans-serif;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+    }
+
+    .brand-panel {
+      background: #651828;
+      color: #fffaf3;
+      padding: 64px 70px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .brand {
+      font-family: "Italiana", serif;
+      font-size: 31px;
+      letter-spacing: 5px;
+    }
+
+    .tagline {
+      margin-top: 8px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      opacity: 0.72;
+    }
+
+    .statement {
+      max-width: 520px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #d9bc83;
+      margin-bottom: 24px;
+    }
+
+    .statement h1 {
+      font-family: "Italiana", serif;
+      font-weight: 400;
+      font-size: clamp(44px, 5vw, 70px);
+      line-height: 1.03;
+      margin: 0;
+    }
+
+    .statement p {
+      margin: 25px 0 0;
+      max-width: 430px;
+      line-height: 1.8;
+      font-size: 14px;
+      opacity: 0.76;
+    }
+
+    .brand-footer {
+      font-size: 11px;
+      opacity: 0.55;
+      letter-spacing: 1px;
+    }
+
+    .login-panel {
+      padding: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 430px;
+    }
+
+    .back {
+      display: inline-block;
+      color: #746861;
+      text-decoration: none;
+      font-size: 12px;
+      margin-bottom: 55px;
+    }
+
+    .login-box h2 {
+      font-family: "Italiana", serif;
+      font-size: 42px;
+      font-weight: 400;
+      margin: 0 0 12px;
+    }
+
+    .intro {
+      color: #746861;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 38px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      margin-bottom: 9px;
+    }
+
+    input {
+      width: 100%;
+      height: 52px;
+      border: 1px solid #d9d0c4;
+      background: #fffdf9;
+      padding: 0 15px;
+      font: inherit;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #651828;
+    }
+
+    button {
+      width: 100%;
+      height: 54px;
+      border: 0;
+      margin-top: 8px;
+      background: #651828;
+      color: white;
+      cursor: pointer;
+      font: inherit;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
+    #message {
+      min-height: 22px;
+      margin-top: 18px;
+      color: #9c2f3f;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .support {
+      border-top: 1px solid #ddd2c5;
+      margin-top: 36px;
+      padding-top: 22px;
+      font-size: 12px;
+      color: #81746b;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 800px) {
+      .page {
+        display: block;
+      }
+
+      .brand-panel {
+        min-height: 330px;
+        padding: 38px 28px;
+      }
+
+      .statement {
+        margin-top: 70px;
+      }
+
+      .statement h1 {
+        font-size: 42px;
+      }
+
+      .brand-footer {
+        display: none;
+      }
+
+      .login-panel {
+        padding: 45px 25px 70px;
+      }
+
+      .back {
+        margin-bottom: 35px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <section class="brand-panel">
+
+    <div>
+      <div class="brand">NAZARANA</div>
+      <div class="tagline">
+        AN OFFERING WITH LOVE AND RESPECT
+      </div>
+    </div>
+
+    <div class="statement">
+      <div class="eyebrow">
+        Corporate Gifting
+      </div>
+
+      <h1>
+        Thoughtful gifting,<br>
+        beautifully managed.
+      </h1>
+
+      <p>
+        Your dedicated workspace to manage employee gifting,
+        selections and campaign progress.
+      </p>
+    </div>
+
+    <div class="brand-footer">
+      CORPORATE GIFTING · NAZARANA
+    </div>
+
+  </section>
+
+
+  <section class="login-panel">
+
+    <div class="login-box">
+
+      <a class="back" href="index.html">
+        ← Back to Nazarana
+      </a>
+
+      <h2>HR Login</h2>
+
+      <p class="intro">
+        Sign in to manage your organisation's gifting programme.
+      </p>
+
+      <form id="loginForm">
+
+        <div class="field">
+          <label for="email">
+            Corporate email
+          </label>
+
+          <input
+            id="email"
+            type="email"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label for="password">
+            Password
+          </label>
+
+          <input
+            id="password"
+            type="password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <button id="loginButton" type="submit">
+          Sign in securely
+        </button>
+
+        <div id="message"></div>
+
+      </form>
+
+      <div class="support">
+        Having trouble accessing your corporate gifting
+        dashboard? Contact your Nazarana account manager.
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+<script type="module">
+
+  import {
+    createClient
+  } from "https://esm.sh/@supabase/supabase-js@2";
+
+  const SUPABASE_URL =
+    "https://seogmslimxytpeoynath.supabase.co";
+
+  /*
+    Paste your existing Supabase PUBLISHABLE / ANON key below.
+    This is the browser-safe key — NOT the service-role key.
+  */
+  const SUPABASE_ANON_KEY =
+    "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE";
+
+  const supabase =
+    createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+  const form =
+    document.getElementById("loginForm");
+
+  const message =
+    document.getElementById("message");
+
+  const button =
+    document.getElementById("loginButton");
+
+
+  /*
+    If an HR session already exists,
+    send the user straight to the dashboard.
+  */
+
+  const {
+    data: { session }
+  } =
+    await supabase.auth.getSession();
+
+  if (session) {
+    location.href =
+      "hr-dashboard.html";
+  }
+
+
+  form.addEventListener(
+    "submit",
+    async (event) => {
+
+      event.preventDefault();
+
+      message.textContent = "";
+      button.disabled = true;
+      button.textContent =
+        "Signing in…";
+
+      const email =
+        document
+          .getElementById("email")
+          .value
+          .trim();
+
+      const password =
+        document
+          .getElementById("password")
+          .value;
+
+      const {
+        data,
+        error
+      } =
+        await supabase.auth
+          .signInWithPassword({
+            email,
+            password
+          });
+
+      if (
+        error ||
+        !data.session
+      ) {
+        message.textContent =
+          error?.message ||
+          "Unable to sign in.";
+
+        button.disabled = false;
+        button.textContent =
+          "Sign in securely";
+
+        return;
+      }
+
+      /*
+        Authentication succeeded.
+        hr-dashboard will perform the
+        actual HR-authorisation check.
+      */
+
+      location.href =
+        "hr-dashboard.html";
+    }
+  );
+
+</script>
+
+</body>
+</html>
