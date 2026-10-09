@@ -1,218 +1,263 @@
-let cart = JSON.parse(
-  localStorage.getItem("nazaranaCart") || "[]"
-);
 
 const RAZORPAY_FUNCTION =
   "https://seogmslimxytpeoynath.supabase.co/functions/v1/razorpay-payment";
 
-const fmt = (n) =>
-  "₹" + n.toLocaleString("en-IN");
+const $ = (id) => document.getElementById(id);
 
-const save = () =>
-  localStorage.setItem(
-    "nazaranaCart",
-    JSON.stringify(cart)
-  );
+const countEl = $("count");
+const cartItemsEl = $("cartItems");
+const subtotalEl = $("subtotal");
+const grandtotalEl = $("grandtotal");
+const checkoutFormEl = $("checkoutForm");
+const payStatusEl = $("payStatus");
+const payButton = checkoutFormEl?.querySelector('button[type="submit"]');
+
+let cart = [];
+
+try {
+  const stored = JSON.parse(localStorage.getItem("nazaranaCart") || "[]");
+  cart = Array.isArray(stored) ? stored : [];
+} catch (error) {
+  console.error("Cart storage error:", error);
+}
+
+let paymentInProgress = false;
+
+const fmt = (value) =>
+  "₹" + Number(value || 0).toLocaleString("en-IN");
+
+function save() {
+  localStorage.setItem("nazaranaCart", JSON.stringify(cart));
+}
 
 function draw() {
-  count.textContent = cart.length;
+  if (countEl) countEl.textContent = String(cart.length);
 
-  cartItems.innerHTML = cart.length
-    ? cart
-        .map(
-          (p, i) => `
-            <article class="cart-row">
-              <img src="${p.img}">
-              <div>
-                <h3>${p.name}</h3>
-                <p>${fmt(p.price)}</p>
-                <button onclick="remove(${i})">
-                  Remove
-                </button>
-              </div>
-            </article>
-          `
-        )
-        .join("")
-    : `
-        <div class="empty-cart">
-          <h2>Your bag is empty.</h2>
-          <a class="secondary" href="index.html">
-            Continue shopping
-          </a>
-        </div>
-      `;
+  if (cartItemsEl) {
+    cartItemsEl.innerHTML = cart.length
+      ? cart.map((p, i) => `
+          <article class="cart-row">
+            <img src="${p.img}">
+            <div>
+              <h3>${p.name}</h3>
+              <p>${fmt(p.price)}</p>
+              <button type="button" onclick="remove(${i})">
+                Remove
+              </button>
+            </div>
+          </article>
+        `).join("")
+      : `
+          <div class="empty-cart">
+            <h2>Your bag is empty.</h2>
+            <a class="secondary" href="index.html">
+              Continue shopping
+            </a>
+          </div>
+        `;
+  }
 
   const total = cart.reduce(
-    (sum, product) =>
-      sum + Number(product.price || 0),
+    (sum, product) => sum + Number(product.price || 0),
     0
   );
 
-  subtotal.textContent =
-    grandtotal.textContent =
-      fmt(total);
+  if (subtotalEl) subtotalEl.textContent = fmt(total);
+  if (grandtotalEl) grandtotalEl.textContent = fmt(total);
+
+  if (payButton) payButton.disabled = !cart.length;
 }
 
-function remove(i) {
-  cart.splice(i, 1);
+function remove(index) {
+  if (paymentInProgress) return;
+  cart.splice(index, 1);
   save();
   draw();
 }
 
-draw();
+window.remove = remove;
 
-checkoutForm.onsubmit = async (e) => {
-  e.preventDefault();
+function setStatus(message) {
+  if (payStatusEl) payStatusEl.textContent = message;
+}
 
-  if (!cart.length) return;
+function setBusy(busy) {
+  paymentInProgress = busy;
 
-  const customer =
-    Object.fromEntries(
-      new FormData(checkoutForm)
-    );
+  if (payButton) {
+    payButton.disabled = busy || !cart.length;
+    payButton.textContent = busy
+      ? "PREPARING PAYMENT..."
+      : "PROCEED TO SECURE PAYMENT";
+  }
+}
 
-  const total = cart.reduce(
-    (sum, product) =>
-      sum + Number(product.price || 0),
-    0
-  );
-
-  payStatus.textContent =
-    "Preparing secure payment…";
+async function requestPayment(payload) {
+  let response;
 
   try {
-    const response = await fetch(
-      RAZORPAY_FUNCTION,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-  action: "create_order",
-  cart,
-  customer,
-}),
-      }
+    response = await fetch(RAZORPAY_FUNCTION, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    console.error("Payment network error:", error);
+    throw new Error(
+      "Could not connect to the payment service. Please check your internet connection and try again."
+    );
+  }
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch (error) {
+    console.error("Invalid payment response:", error);
+    throw new Error(
+      "The payment service returned an unexpected response. Please try again."
+    );
+  }
+
+  if (!response.ok || !data.success) {
+    throw new Error(
+      data.message ||
+      data.error ||
+      "The payment service could not process this request."
+    );
+  }
+
+  return data;
+}
+
+function ensureRazorpayLoaded() {
+  if (typeof window.Razorpay !== "function") {
+    throw new Error(
+      "The secure payment gateway could not load. Please refresh the page and try again."
+    );
+  }
+}
+
+if (checkoutFormEl) {
+  checkoutFormEl.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (!cart.length || paymentInProgress) return;
+
+    const customer = Object.fromEntries(
+      new FormData(checkoutFormEl).entries()
     );
 
-    const order = await response.json();
+    setBusy(true);
+    setStatus("Preparing secure payment...");
 
-    if (!response.ok || !order.success) {
-      throw new Error(
-        order.message ||
-          "Order creation failed"
-      );
-    }
+    try {
+      ensureRazorpayLoaded();
 
-    const options = {
-      key: order.key_id,
-      amount: order.amount,
-      currency: order.currency || "INR",
+      const order = await requestPayment({
+        action: "create_order",
+        cart,
+        customer
+      });
 
-      name: "Nazarana",
+      if (!order.key_id || !order.order_id || !order.amount) {
+        throw new Error(
+          "The payment service returned incomplete order details."
+        );
+      }
 
-      description:
-        "An offering with love and respect",
+      let paymentCompleted = false;
 
-      order_id: order.order_id,
+      const options = {
+        key: order.key_id,
+        amount: order.amount,
+        currency: order.currency || "INR",
+        name: "Nazarana",
+        description: "An offering with love and respect",
+        order_id: order.order_id,
 
-      prefill: {
-        name: customer.name || "",
-        email: customer.email || "",
-        contact: customer.phone || "",
-      },
+        prefill: {
+          name: customer.name || "",
+          email: customer.email || "",
+          contact: customer.phone || ""
+        },
 
-      theme: {
-        color: "#6f1d2b",
-      },
+        theme: {
+          color: "#6f1d2b"
+        },
 
-      handler: async (paymentResponse) => {
-        payStatus.textContent =
-          "Verifying payment…";
+        handler: async (paymentResponse) => {
+          paymentCompleted = true;
+          setStatus("Verifying payment...");
 
-        try {
-          const verifyResponse =
-            await fetch(
-              RAZORPAY_FUNCTION,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type":
-                    "application/json",
-                },
-                body: JSON.stringify({
-                  action: "verify_payment",
+          try {
+            const verification = await requestPayment({
+              action: "verify_payment",
+              razorpay_order_id:
+                paymentResponse.razorpay_order_id,
+              razorpay_payment_id:
+                paymentResponse.razorpay_payment_id,
+              razorpay_signature:
+                paymentResponse.razorpay_signature
+            });
 
-                  razorpay_order_id:
-                    paymentResponse
-                      .razorpay_order_id,
+            if (!verification.verified) {
+              throw new Error("Payment verification was unsuccessful.");
+            }
 
-                  razorpay_payment_id:
-                    paymentResponse
-                      .razorpay_payment_id,
+            localStorage.removeItem("nazaranaCart");
 
-                  razorpay_signature:
-                    paymentResponse
-                      .razorpay_signature,
-                }),
-              }
-            );
+            window.location.href =
+              "success.html?order=" +
+              encodeURIComponent(
+                verification.order_number || ""
+              );
+          } catch (error) {
+            console.error("Payment verification error:", error);
 
-          const verification =
-            await verifyResponse.json();
-
-          if (
-            !verifyResponse.ok ||
-            !verification.success ||
-            !verification.verified
-          ) {
-            throw new Error(
-              verification.message ||
-                "Payment verification failed"
+            setStatus(
+              "Payment may have been received, but verification could not be completed. Please contact Nazarana before attempting another payment."
             );
           }
-
-          localStorage.removeItem(
-            "nazaranaCart"
-          );
-
-          location.href =
-            "success.html?order=" +
-            encodeURIComponent(
-              verification.order_number
-            );
-        } catch (error) {
-          console.error(error);
-
-          payStatus.textContent =
-            "Payment received, but verification could not be completed. Please contact Nazarana before attempting another payment.";
-        }
-      },
-
-      modal: {
-        ondismiss: function () {
-          payStatus.textContent =
-            "Payment was not completed.";
         },
-      },
-    };
 
-    if (typeof Razorpay === "undefined") {
-      throw new Error(
-        "Razorpay Checkout is not loaded."
+        modal: {
+          ondismiss: () => {
+            if (!paymentCompleted) {
+              setStatus("Payment was not completed.");
+              setBusy(false);
+            }
+          }
+        }
+      };
+
+      const razorpay = new window.Razorpay(options);
+
+      razorpay.on("payment.failed", (response) => {
+        const description =
+          response?.error?.description ||
+          "The payment was unsuccessful.";
+
+        setStatus(description);
+        setBusy(false);
+      });
+
+      razorpay.open();
+
+      setStatus("Complete your payment in the secure Razorpay window.");
+    } catch (error) {
+      console.error("Payment initiation error:", error);
+
+      setStatus(
+        error?.message ||
+        "We couldn't start the payment. Please try again."
       );
+
+      setBusy(false);
     }
+  });
+}
 
-    const razorpay =
-      new Razorpay(options);
-
-    razorpay.open();
-  } catch (error) {
-    console.error(error);
-
-    payStatus.textContent =
-      "We couldn't start the payment. Please try again.";
-  }
-};
+draw();
